@@ -567,9 +567,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         SetState(gguid, LFG_STATE_ROLECHECK);
         // Send update to player
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons, comment);
-        //npcbot
-        std::map<ObjectGuid, uint8> brolemap;
-        //end npcbot
+       
         for (GroupReference* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
         {
             if (Player* plrg = itr->GetSource())
@@ -589,10 +587,7 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         }
         // Update leader role
         UpdateRoleCheck(gguid, guid, roles);
-        //npcbot - update bots' roles
-        for (std::map<ObjectGuid, uint8>::const_iterator it = brolemap.begin(); it != brolemap.end(); ++it)
-            UpdateRoleCheck(gguid, it->first, it->second);
-        //end npcbot
+
     }
     else                                                   // Add player to queue
     {
@@ -729,9 +724,7 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
         if (Player* player = ObjectAccessor::FindPlayer(guid))
             roles = FilterClassRoles(player, roles);
         else
-        //npcbot: allow bots to pass through, bot roles are checked elsewhere
-        if (guid.IsPlayer())
-        //end npcbot
+
             return;
     }
 

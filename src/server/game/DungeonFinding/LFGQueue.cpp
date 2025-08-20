@@ -421,8 +421,9 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
         }
     }
 
+    Player* player = ObjectAccessor::FindPlayer(check.front());
     // Group with less that MAX_GROUP_SIZE members always compatible
-    if (check.size() == 1 && numPlayers != MAX_GROUP_SIZE)
+    if (check.size() == 1 && numPlayers != MAX_GROUP_SIZE && (player && !player->IsSoloLFG()))
     {
         TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: ({}) single group. Compatibles", GetDetailedMatchRoles(check));
         LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(check.front());
@@ -520,7 +521,7 @@ LfgCompatibility LFGQueue::CheckCompatibility(GuidList check)
     }
 
     // Enough players?
-    if (numPlayers != MAX_GROUP_SIZE)
+    if (numPlayers != MAX_GROUP_SIZE && (player && !player->IsSoloLFG()))
     {
         TC_LOG_DEBUG("lfg.queue.match.compatibility.check", "Guids: ({}) Compatibles but not enough players({})", GetDetailedMatchRoles(check), numPlayers);
         LfgCompatibilityData data(LFG_COMPATIBLES_WITH_LESS_PLAYERS);

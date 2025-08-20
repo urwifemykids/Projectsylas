@@ -109,6 +109,8 @@
 #include "LuaEngine.h"
 #endif
 #include "WorldStatePackets.h"
+#include "Config.h"
+
 
 #define ZONE_UPDATE_INTERVAL (1*IN_MILLISECONDS)
 
@@ -393,6 +395,8 @@ Player::Player(WorldSession* session): Unit(true)
     m_reputationMgr = new ReputationMgr(this);
 
     m_groupUpdateTimer.Reset(5000);
+
+    isSoloLFG = false;
 }
 
 Player::~Player()
@@ -17162,6 +17166,16 @@ bool Player::LoadFromDB(ObjectGuid guid, CharacterDatabaseQueryHolder const& hol
         return false;
     }
 
+    if (sConfigMgr->GetBoolDefault("SoloLFG.Enable", true))
+    {
+        CharacterDatabase.PExecute("INSERT INTO `character_solo_lfg` (`guid`, `enable`) VALUES ({}, 0) "
+            "ON DUPLICATE KEY UPDATE `enable` = `enable`", guid.GetCounter());
+
+        QueryResult _result = CharacterDatabase.PQuery("SELECT `enable` FROM `character_solo_lfg` WHERE `guid` = {}", guid.GetCounter());
+        if (_result)
+            HandleSoloLFG(_result->Fetch()[0].GetBool());
+    }
+
     Gender gender = Gender(fields[5].GetUInt8());
     if (!IsValidGender(gender))
     {
@@ -26945,4 +26959,13 @@ std::string Player::GetDebugInfo() const
 GameClient* Player::GetGameClient() const
 {
     return GetSession()->GetGameClient();
+}
+
+void Player::HandleSoloLFG(bool enable)
+{
+    if (isSoloLFG != enable)
+    {
+        isSoloLFG = enable;
+        CharacterDatabase.PExecute("UPDATE `character_solo_lfg` SET `enable` = {} WHERE `guid` = {}", enable, GetGUID().GetCounter());
+    }
 }

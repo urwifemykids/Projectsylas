@@ -40,6 +40,8 @@
 #include "World.h"
 #include "WorldSession.h"
 
+
+
 namespace lfg
 {
 
@@ -466,6 +468,8 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                         joinData.result = LFG_JOIN_PARTY_NOT_MEET_REQS;
                     ++memberCount;
                     players.insert(plrg->GetGUID());
+
+
                 }
             }
 
@@ -563,6 +567,9 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
         SetState(gguid, LFG_STATE_ROLECHECK);
         // Send update to player
         LfgUpdateData updateData = LfgUpdateData(LFG_UPDATETYPE_JOIN_QUEUE, dungeons, comment);
+        //npcbot
+        std::map<ObjectGuid, uint8> brolemap;
+        //end npcbot
         for (GroupReference* itr = grp->GetFirstMember(); itr != nullptr; itr = itr->next())
         {
             if (Player* plrg = itr->GetSource())
@@ -576,10 +583,16 @@ void LFGMgr::JoinLfg(Player* player, uint8 roles, LfgDungeonSet& dungeons, const
                 if (!debugNames.empty())
                     debugNames.append(", ");
                 debugNames.append(plrg->GetName());
+
+
             }
         }
         // Update leader role
         UpdateRoleCheck(gguid, guid, roles);
+        //npcbot - update bots' roles
+        for (std::map<ObjectGuid, uint8>::const_iterator it = brolemap.begin(); it != brolemap.end(); ++it)
+            UpdateRoleCheck(gguid, it->first, it->second);
+        //end npcbot
     }
     else                                                   // Add player to queue
     {
@@ -716,6 +729,9 @@ void LFGMgr::UpdateRoleCheck(ObjectGuid gguid, ObjectGuid guid /* = ObjectGuid::
         if (Player* player = ObjectAccessor::FindPlayer(guid))
             roles = FilterClassRoles(player, roles);
         else
+        //npcbot: allow bots to pass through, bot roles are checked elsewhere
+        if (guid.IsPlayer())
+        //end npcbot
             return;
     }
 
@@ -967,6 +983,8 @@ void LFGMgr::MakeNewGroup(LfgProposal const& proposal)
         if (!player)
             continue;
 
+
+
         Group* group = player->GetGroup();
         if (group && group != grp)
             group->RemoveMember(player->GetGUID());
@@ -1040,6 +1058,8 @@ void LFGMgr::UpdateProposal(uint32 proposalId, ObjectGuid guid, bool accept)
     LfgProposalPlayerContainer::iterator itProposalPlayer = proposal.players.find(guid);
     if (itProposalPlayer == proposal.players.end())
         return;
+
+
 
     LfgProposalPlayer& player = itProposalPlayer->second;
     player.accept = LfgAnswer(accept);

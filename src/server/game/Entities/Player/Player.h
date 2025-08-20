@@ -2244,6 +2244,9 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
 
         std::string GetDebugInfo() const override;
 
+        void HandleSoloLFG(bool enable);
+        bool IsSoloLFG() const { return isSoloLFG; }
+
     protected:
         // Gamemaster whisper whitelist
         GuidList WhisperList;
@@ -2562,6 +2565,8 @@ class TC_GAME_API Player : public Unit, public GridObject<Player>
         uint32 manaBeforeDuel;
 
         WorldLocation _corpseLocation;
+
+        bool isSoloLFG;
 };
 
 TC_GAME_API void AddItemsSetItem(Player* player, Item* item);

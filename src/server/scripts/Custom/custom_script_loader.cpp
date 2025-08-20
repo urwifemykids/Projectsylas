@@ -16,9 +16,18 @@
  */
 
 // This is where scripts' loading functions should be declared:
+void AddSC_skip_StarterArea();
+void AddSC_LearnSpellsOnLevelUp();
+void AddSolocraftScripts();
+void AddSC_DynamicXPRate();
 
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddCustomScripts()
 {
+ AddSC_skip_StarterArea();
+ AddSC_LearnSpellsOnLevelUp();
+ AddSolocraftScripts();
+ AddSC_DynamicXPRate();
+
 }
